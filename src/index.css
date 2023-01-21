@@ -1,0 +1,52 @@
+@import "sanitize.css";
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,900;1,300;1,400&display=swap');
+
+:root {
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  margin: 0 auto;
+  text-align: center;
+
+  --colorPrimary: #ffffff;
+  --colorSecondary: #000000;
+  --colorTertiary: #aeb3b9;
+  --colorQuaternary: #ff6b09;
+
+  --backgroundPrimary: #102136;
+  --backgroundSecondary: rgba(16, 33, 54, 0.8);
+  --backgroundTertiary: rgba(255, 255, 255, 0.5);
+  --backgroundQuaternary:rgba(255, 255, 255, 1);
+  --fontSmall:0.8rem;
+  --fontMedium:18px;
+  --fontLarge:3rem;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-width: 320px;
+  min-height: 100vh;
+  text-align: center;
+}
+
+button,form,input {
+  background-color: inherit;
+  border: none;
+}
+input:focus, textarea:focus{
+  border: none;
+  outline: none;
+}
+button{
+  cursor: pointer;
+}
+ul{
+  list-style: none;
+}
