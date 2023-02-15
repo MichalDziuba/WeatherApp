@@ -1,10 +1,13 @@
 import styled from "styled-components";
+import { CodeToIcon } from "../../helpers/weatherCodeConvertToIcon";
 
 type IconProps = {
-  iconSrc: string;
+  code: number;
+  isDay: boolean;
 };
 
-const WeatherIcon = ({iconSrc}:IconProps) => {
+const WeatherIcon = ({ code, isDay }: IconProps) => {
+  const iconSrc = CodeToIcon({code,isDay});
   return <Icon src={iconSrc} alt="icon" />;
 };
 const Icon = styled.img`

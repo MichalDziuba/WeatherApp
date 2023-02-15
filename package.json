@@ -1,19 +1,33 @@
 {
   "name": "weatherapp",
+  "homepage": "https://MichalDziuba.github.io/WeatherApp",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "start": "vite --host",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.11.8",
+    "@mui/styled-engine-sc": "^5.11.0",
     "axios": "^1.2.2",
     "country-to-iso": "^1.3.0",
+    "framer-motion": "^9.0.2",
+    "gh-pages": "^5.0.0",
+    "lord-icon-element": "^4.0.3",
+    "lottie-web": "^5.10.2",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.40",
+    "nanoid": "^4.0.1",
+    "normalize.css": "^8.0.1",
     "react": "^18.2.0",
+    "react-autosuggest": "^10.1.0",
     "react-countries-list": "^2.0.0",
     "react-dom": "^18.2.0",
     "react-toastify": "^9.1.1",
@@ -21,6 +35,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.0.26",
+    "@types/react-autosuggest": "^10.1.6",
     "@types/react-dom": "^18.0.9",
     "@types/styled-components": "^5.1.26",
     "@vitejs/plugin-react": "^3.0.0",

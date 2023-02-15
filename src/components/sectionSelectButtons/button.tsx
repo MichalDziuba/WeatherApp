@@ -1,6 +1,14 @@
 import { useState } from "react";
 import styled from "styled-components";
 
+type ButtonProps = {
+  text?: string,
+  active?: boolean,
+};
+
+const Button = ({ text }: ButtonProps) => {
+  return <Btn>{text}</Btn>;
+};
 const Btn = styled.button<ButtonProps>`
   padding: 2px 12px;
   gap: 10px;
@@ -14,11 +22,4 @@ const Btn = styled.button<ButtonProps>`
       ? `var(--backgroundQuaternary )`
       : `var(--backgroundTertiary)`};
 `;
-type ButtonProps = {
-  text: string;
-};
-
-const Button = ({ text }: ButtonProps) => {
-  return <Btn>{text}</Btn>;
-};
 export default Button;

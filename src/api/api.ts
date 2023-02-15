@@ -2,7 +2,7 @@ import axios from "axios";
 
 const APIKEY:string = 'a646310093de4b4a8f4190244231501';
 
-export const Request = (q: string) => { return axios.get(`http://api.weatherapi.com/v1/forecast.json?key=${APIKEY}&q=${q}&days=5&aqi=no&alerts=no`) };
+export const Request = (q: string) => { return axios.get(`https://api.weatherapi.com/v1/forecast.json?key=${APIKEY}&q=${q}&days=10&aqi=no&alerts=no`) };
 
 
 interface dataCurrent {

@@ -1,11 +1,21 @@
 import moment from "moment";
 export function getDateVariables(date: string) {
-  const selectedDate = moment(date);
+  const selectedDate = moment(date, "YYYY-MM-DD HH:mm");
   const dayAndSuffix = selectedDate.format("Do").split(/([a-z]+)/);
+  console.log(
+    dayAndSuffix[0],
+    selectedDate.format("MMMM"),
+    selectedDate.format("MMMM").slice(0, 3),
+    dayAndSuffix[1],
+    selectedDate.format("ddd"),
+    selectedDate.format("dddd")
+  );
   return {
     day: dayAndSuffix[0],
     month: selectedDate.format("MMMM"),
+    monthShort: selectedDate.format('MMMM').slice(0,3),
     suffix: dayAndSuffix[1],
+    dayOfWeek:selectedDate.format("dddd"),
     dayOfWeekShort: selectedDate.format("ddd"),
   };
 }

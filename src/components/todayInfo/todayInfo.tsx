@@ -2,54 +2,72 @@ import styled from "styled-components";
 import { weatherDataInterface } from "../../api/api";
 import { convertTo24Hour, getDateVariables } from "../../helpers/date";
 import Clock from "../clock/clock";
-import { ContainerWeather } from "../currentWeather/currentWeather";
-import iconSunset from "../../assets/icons/sunset.svg";
-import iconSunrise from "../../assets/icons/sunrise.svg";
+import iconSunset from "../../assets/icons/animated/sunset.svg";
+import iconSunrise from "../../assets/icons/animated/sunrise.svg";
+import { ContentWrapper } from "../contentWrapper/contentWrapper";
+import { motion } from "framer-motion";
+import { nanoid } from "nanoid";
 type TodayInfoProps = {
   data: weatherDataInterface;
 };
 
 const TodayInfo = ({ data }: TodayInfoProps) => {
-  const date = getDateVariables(data.location.localtime);
   const timeZone = data.location.tz_id;
+  const date = getDateVariables(data.location.localtime);
   const sunSet = convertTo24Hour(data.forecast.forecastday[0].astro.sunset);
   const sunRise = convertTo24Hour(data.forecast.forecastday[0].astro.sunrise);
 
   return (
     <ContainerToday>
-      <WrapperContentFirst>
-        <WrapperContentDate>
-          <p>
-            {date.day} <sup>{date.suffix}</sup>
-          </p>
-        </WrapperContentDate>
-        <WrapperContentDate>
-          <p>{date.dayOfWeekShort}</p>
-        </WrapperContentDate>
-      </WrapperContentFirst>
-      <WrapperContent>
-        <WrapperContentSmall>{date.month}</WrapperContentSmall> <DecorLine />
-        <WrapperContentSmall>
-          <Clock tzId={timeZone} />
-        </WrapperContentSmall>
-      </WrapperContent>
-      <WrapperContent>
-        <WrapperContentSun>
-          <Icon src={iconSunrise} /> <p>{sunRise}</p>
-        </WrapperContentSun>
-        <DecorLine />
-        <WrapperContentSun>
-          <Icon src={iconSunset} /> <p>{sunSet}</p>
-        </WrapperContentSun>
-      </WrapperContent>
+      <TodayInfoWrapper
+      initial={{ opacity: 0.1, x: 500 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ x: 1000 }}
+      transition={{ duration: 0.5 }}
+      key={nanoid()}
+      >
+        <WrapperContentFirst>
+          <WrapperContentDate>
+            <p>
+              {date.day} <sup>{date.suffix}</sup>
+            </p>
+          </WrapperContentDate>
+          <WrapperContentDate>
+            <p>{date.dayOfWeekShort}</p>
+          </WrapperContentDate>
+        </WrapperContentFirst>
+        <WrapperContent>
+          <WrapperContentSmall>{date.month}</WrapperContentSmall> <DecorLine />
+          <WrapperContentSmall>
+            <Clock tzId={timeZone} />
+          </WrapperContentSmall>
+        </WrapperContent>
+        <WrapperContent>
+          <WrapperContentSun>
+            <Icon src={iconSunrise} /> <p>{sunRise}</p>
+          </WrapperContentSun>
+          <DecorLine />
+          <WrapperContentSun>
+            <Icon src={iconSunset} /> <p>{sunSet}</p>
+          </WrapperContentSun>
+        </WrapperContent>
+      </TodayInfoWrapper>
     </ContainerToday>
   );
 };
 
-const ContainerToday = styled(ContainerWeather)`
+const ContainerToday = styled(ContentWrapper)`
   background-color: var(--backgroundSecondary);
-  margin-top: 1rem;
-  color: var(--colorPrimary);
+  flex-direction: column;
+  border-radius: 30px;
+`;
+const TodayInfoWrapper = styled(motion.div)`
+  width: 100%;
+  height: 11rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
 `;
 const WrapperContent = styled.div`
   width: 70%;
@@ -71,27 +89,23 @@ const WrapperContentSmall = styled.div`
 `;
 const WrapperContentDate = styled(WrapperContentSmall)`
   font-size: var(--fontLarge);
-
-  & p {
-    margin: 0;
-  }
+  min-width: fit-content;
 `;
 const WrapperContentSun = styled(WrapperContentSmall)`
   justify-content: space-evenly;
   align-items: center;
-  & p {
-    margin: 0;
-  }
 `;
-const DecorLine = styled.span`
+export const DecorLine = styled.span`
   content: "";
   width: 1px;
-  height: 100%;
+  height: 90%;
   background-color: var(--colorTertiary);
 `;
 const Icon = styled.img`
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  overflow: hidden;
 `;
 
 export default TodayInfo;
