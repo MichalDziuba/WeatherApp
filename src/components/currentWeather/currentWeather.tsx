@@ -1,23 +1,21 @@
 import styled from "styled-components";
 import { countryToAlpha2 } from "country-to-iso";
-import { weatherDataInterface } from "../../api/api";
+import { weatherDataInterface } from "../../api/weatherApi";
 import WeatherIcon from "../weatherIcon/weatherIcon";
 import { ContentWrapper } from "../contentWrapper/contentWrapper";
 import AddToFavButton from "../addToFavButton/favButton";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { nanoid } from "nanoid";
+
 type CurrentWeatherProps = {
   data: weatherDataInterface;
   temperatureUnit: boolean;
-  favCities: string[] | null;
-  toggleFavCity: (city: string) => void;
   isDay: boolean;
+
 };
 const CurrentWeather = ({
   data,
   temperatureUnit,
-  toggleFavCity,
-  favCities,
   isDay,
 }: CurrentWeatherProps) => {
   const formatTemp = (temp: number) => {
@@ -40,28 +38,24 @@ const CurrentWeather = ({
       : data.forecast.forecastday[0].day.maxtemp_f
   );
   const iconCode = data.current.condition.code;
-
-
+  
   return (
     <ContainerWeather>
       <CurrentWeatherWrapper
         initial={{ opacity: 0.1, x: -500 }}
         animate={{
           opacity: 1,
-          x: 0
+          x: 0,
         }}
-        exit={{ x: 1000 }}
         transition={{ duration: 0.5 }}
         key={nanoid()}
       >
         <WeatherIcon code={iconCode} isDay={isDay} />
         <CityInfo>
-          {cityName},{countryShortcut}
+          {cityName}, {countryShortcut}
           <AddToFavButton
             key={nanoid()}
             cityName={cityName}
-            favCities={favCities}
-            fn={()=>toggleFavCity(cityName)}
           />
         </CityInfo>
         <WeatherInfo>
@@ -95,11 +89,11 @@ const CurrentWeather = ({
   );
 };
 
- export const ContainerWeather = styled(ContentWrapper)`
+export const ContainerWeather = styled(ContentWrapper)`
   background-color: var(--backgroundSecondary);
   border-radius: 30px;
 `;
- const CurrentWeatherWrapper = styled(motion.div)`
+const CurrentWeatherWrapper = styled(motion.div)`
   width: 100%;
   height: 11rem;
   display: flex;
@@ -108,7 +102,7 @@ const CurrentWeather = ({
   justify-content: space-evenly;
 `;
 const CityInfo = styled.p`
-  font-size: var(--fontMedium);
+  font-size: var(--fontLarge);
   color: var(--colorTertiary);
   display: flex;
   align-items: center;
@@ -124,7 +118,7 @@ const WeatherInfo = styled.div`
   margin-bottom: 0.5rem;
 `;
 const CurrentTemp = styled.p`
-  font-size: var(--fontLarge);
+  font-size: var(--fontExtraLarge);
   color: var(--colorPrimary);
   width: 50%;
 `;
@@ -147,7 +141,7 @@ const DecorLine = styled.span`
 const TempValue = styled.p`
   margin: 0 auto;
   color: var(--colorPrimary);
-  font-size: var(--fontMedium);
+  font-size: initial;
 `;
 const TempWrapper = styled.div`
   display: flex;
@@ -157,7 +151,7 @@ const TempWrapper = styled.div`
 `;
 const TempName = styled.p`
   margin: 0 auto;
-  font-size: var(--fontSmall);
+  font-size: var(--fontMedium);
   color: var(--colorTertiary);
 `;
 

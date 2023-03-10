@@ -1,125 +1,19 @@
-// import geoIcon from "../../assets/icons/geo.svg";
-// import favIcon from "../../assets/icons/star.svg";
-// import searchIcon from "../../assets/icons/search.gif";
-// import styled from "styled-components";
-// import React, { Dispatch, SetStateAction, useState } from "react";
-// import { ContentWrapper } from "../contentWrapper/contentWrapper";
-// import { LordIcon } from "../lordIcon/lordIcon";
-// // import { addToFav } from "../../helpers/useLocalStorage";
-// // import useLocalStorage from "../../helpers/useLocalStorage";
-
-// type SearchInputProps = {
-//   setSearchInputValue: Dispatch<SetStateAction<string | null>>;
-//   geoFunction: () => void;
-//   favCities: string[];
-// };
-// type ButtonProps= {
-//   left?: boolean;
-//   right?: boolean;
-// }
-// const SearchCityInput = ({
-//   setSearchInputValue,
-//   geoFunction,
-//   favCities,
-// }: SearchInputProps) => {
-//   const [inputValue, setInputValue] = useState("");
-
-//   const handleSubmit = (e: React.SyntheticEvent) => {
-//     e.preventDefault();
-//     const form = e.currentTarget as HTMLFormElement;
-//     const input = document.getElementById("city") as HTMLInputElement;
-//     setInputValue(input.value);
-//     setSearchInputValue(inputValue);
-//   };
-//   const handleInputChange = (e: React.SyntheticEvent) => {
-//     const input = e.currentTarget as HTMLInputElement;
-//     setInputValue(input.value);
-//   };
-//   const handleClearInput = () => {
-//     setInputValue("");
-//   };
-
-//   return (
-//     <ContentWrapper>
-//       <Form onSubmit={handleSubmit}>
-//         <Button left type="button" onClick={geoFunction}>
-//           <LordIcon
-//             src="https://cdn.lordicon.com/ebudphxn.json"
-//             trigger="hover"
-//             stroke="80"
-//             colors={{ primary: "#848484", secondary: "#66a1ee" }}
-//             size={32}
-//           />
-
-//           {/* <Icon src={geoIcon} alt="localization icon" /> */}
-//         </Button>
-//         <Input
-//           placeholder="Enter the city"
-//           name="city"
-//           id="city"
-//           value={inputValue}
-//           onChange={handleInputChange}
-//           onClick={handleClearInput}
-//         />
-//         {/* <Button>
-//           <Icon src={favIcon} alt="star icon" onClick={addCityToFavorites} />
-//         </Button> */}
-//         <Button right type="submit">
-//           <LordIcon
-//             src="https://cdn.lordicon.com/msoeawqm.json"
-//             trigger="hover"
-//             stroke="80"
-//             colors={{ primary: "#848484", secondary: "#66a1ee" }}
-//             size={32}
-//           />
-//         </Button>
-//       </Form>
-//     </ContentWrapper>
-//   );
-// };
-
-// const Form = styled.form`
-//   width: 90%;
-//   display: flex;
-//   background-color: var(--colorPrimary);
-//   height: 3rem;
-//   align-items: center;
-//   justify-content: space-between;
-//   border-radius: 30px;
-// `;
-// const Input = styled.input`
-//   width: 70%;
-//   font-size: var(--fontMedium);
-//   background-color: var(--colorPrimary);
-//   color: var(--colorTertiary);
-// `;
-// const Icon = styled.img`
-//   width: 22px;
-//   height: 22px;
-// `;
-// const Button = styled.button<ButtonProps>`
-//   width: fit-content;
-//   height: fit-content;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   margin-left: ${(props) => (props.left ? "10px" : "")};
-//   margin-right: ${(props) => (props.right ? "10px" : "")};
-// `;
-
-// export default SearchCityInput;
-
 import styled from "styled-components";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ContentWrapper } from "../contentWrapper/contentWrapper";
 import { LordIcon } from "../lordIcon/lordIcon";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { inputLabelClasses } from "@mui/material/InputLabel";
+import { translateCityName } from "../../api/geonamesApi";
+import { useLocalStorage } from "react-use";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setFavCities } from "../../store/favCitiesReducer";
+
 type SearchInputProps = {
-  setSearchInputValue: Dispatch<SetStateAction<string | null>>;
+  setSearchInputValue: Dispatch<SetStateAction<string>>;
   geoFunction: () => void;
-  favCities: string[];
+  searchValue: string;
 };
 type ButtonProps = {
   left?: boolean;
@@ -128,17 +22,36 @@ type ButtonProps = {
 const SearchCityInput = ({
   setSearchInputValue,
   geoFunction,
-  favCities,
+  searchValue,
 }: SearchInputProps) => {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(searchValue);
+  const [favoritesCitiesLocalStorage] = useLocalStorage<string[]>(
+    "favoritesCities",
+    []
+  );
 
-  const handleSubmit = (e: React.SyntheticEvent) => {
+  const dispatch = useAppDispatch();
+  const favoritesCities = useAppSelector(
+    (state) => state.favoritesCities.cities
+  );
+  useEffect(() => {
+    if (favoritesCitiesLocalStorage) {
+      dispatch(setFavCities(favoritesCitiesLocalStorage));
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    setSearchInputValue(inputValue);
+    const cityName = await translateCityName(inputValue);
+    setSearchInputValue(cityName);
   };
 
+  useEffect(() => {
+    setInputValue(searchValue);
+  }, [searchValue]);
+
   return (
-    <ContentWrapper top >
+    <ContentWrapper top>
       <InputWrapper>
         <Button left type="button" onClick={geoFunction}>
           <LordIcon
@@ -151,10 +64,12 @@ const SearchCityInput = ({
         </Button>
         <Input
           fullWidth
-          noOptionsText="No favorite cities"
-          options={favCities}
-          isOptionEqualToValue={(option, value) => true}
           disableClearable={true}
+          value={inputValue}
+          clearOnBlur={false}
+          noOptionsText="No favorite cities"
+          options={favoritesCities}
+          isOptionEqualToValue={(option, value) => true}
           onInputChange={(event, newInputValue) => {
             setInputValue(newInputValue);
           }}
@@ -201,9 +116,6 @@ const SearchCityInput = ({
     </ContentWrapper>
   );
 };
-// const SearchWrapper = styled(ContentWrapper)`
-//   margin-top: 2rem;
-// `;
 const Input = styled(Autocomplete)`
   width: 70%;
   height: 2rem;
@@ -211,7 +123,6 @@ const Input = styled(Autocomplete)`
   justify-content: space-evenly;
   align-items: center;
   margin-bottom: 20px;
-  
 `;
 const InputWrapper = styled.div`
   display: flex;
@@ -222,7 +133,7 @@ const InputWrapper = styled.div`
   border-radius: 30px;
   background-color: var(--colorPrimary);
 `;
-const Button = styled.button<ButtonProps>`
+export const Button = styled.button<ButtonProps>`
   width: fit-content;
   height: fit-content;
   display: flex;

@@ -1,22 +1,21 @@
 import Searching from "./components/searchCity/searchCity";
 import styled, { keyframes } from "styled-components";
 import CurrentWeather from "./components/currentWeather/currentWeather";
-import Today5DaysButtons from "./components/sectionSelectButtons/sectionSelect";
-import { Request, weatherDataInterface } from "./api/api";
-import { useEffect, useMemo, useState } from "react";
+import ChangeDisplayedContentButtons from "./components/changeDisplayedContentButtons/sectionSelect";
+import { Request, weatherDataInterface } from "./api/weatherApi";
+import { useEffect, useState } from "react";
 import { Notify, Toast } from "./components/toast/toast";
 import TodayInfo from "./components/todayInfo/todayInfo";
 import Quote from "./components/quote/quote";
-
-import {
-  getLocalStorageData,
-  updateLocalStorage,
-} from "./helpers/useLocalStorage";
 import { nanoid } from "nanoid";
 import { AnimatePresence, motion } from "framer-motion";
 import FiveDaysWeather from "./components/threeDaysWeather/threeDaysWeather";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { Charts } from "./components/charts/charts";
+
 
 function App() {
+  const dispatch = useAppDispatch();
   const geoLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -33,7 +32,7 @@ function App() {
     );
   };
 
-  const [searchValue, setSearchValue] = useState<null | string>(null);
+  const [searchValue, setSearchValue] = useState<string>("");
   const [coords, setCoords] = useState<null | string>(null);
   const [weatherData, setWeatherData] = useState<weatherDataInterface | null>(
     null
@@ -42,24 +41,30 @@ function App() {
   const [temperatureUnitCelsius, setTemperatureUnitCelsius] =
     useState<boolean>(true);
   const [isDay, setIsDay] = useState<boolean>(true || false);
-  const [favCities, updateFavCities] = useState<string[]>([]);
-  const [activeSection, setActiveSection] = useState<"today" | "5days">(
-    "today"
-  );
+  const [isTodayShow, setIsTodayShow] = useState(true);
+  const [todayActive, setTodayActive] = useState(true);
+  const [fiveDaysActive, setFiveDaysActive] = useState(false);
+  // const [favoritesCities, setFavoritesCities] = useState<string[]>([]);
 
-  const toggleFavCity = (city: string) => {
-    if (!favCities || city.length === 0) {
+
+
+  const handleClickToday = () => {
+    if (todayActive) {
       return;
+    } else {
+      setTodayActive(!todayActive);
+      setFiveDaysActive(!fiveDaysActive);
+      setIsTodayShow(true);
     }
-    const cityIndex = favCities.indexOf(city);
-
-    const isCityInFavCities = cityIndex !== -1;
-    const updatedCities = isCityInFavCities
-      ? favCities.filter((e, i) => i !== cityIndex)
-      : [...favCities, city];
-
-    updateFavCities(updatedCities);
-    updateLocalStorage("favCities", updatedCities);
+  };
+  const handleClickFiveDays = () => {
+    if (fiveDaysActive) {
+      return;
+    } else {
+      setFiveDaysActive(!fiveDaysActive);
+      setTodayActive(!todayActive);
+      setIsTodayShow(false);
+    }
   };
 
   const getData = async (req: string) => {
@@ -69,14 +74,13 @@ function App() {
     setIsDay(data.current.is_day === 1 ? true : false);
   };
 
-  const getLocation = () => {
-    geoLocation();
-    getData(coords!);
+  const getLocation = async () => {
+    await geoLocation();
+    await getData(coords!);
+    if (weatherData) {
+      setSearchValue(weatherData?.location.name);
+    }
   };
-  useEffect(() => {
-    updateFavCities(getLocalStorageData("favCities"));
-  }, []);
-
   useEffect(() => {
     searchValue ? getData(searchValue) : null;
   }, [searchValue]);
@@ -91,8 +95,8 @@ function App() {
   }, [geoError]);
 
   return (
-    <AnimatePresence >
-      {/* <Toast /> */}
+    <AnimatePresence>
+      {/* <Toast key={nanoid()} /> */}
       <AppWrapper
         isDay={isDay}
         initial={{ opacity: 0 }}
@@ -103,33 +107,41 @@ function App() {
         <Searching
           setSearchInputValue={setSearchValue}
           geoFunction={getLocation}
-          favCities={favCities}
+          searchValue={searchValue}
         />
 
         {weatherData && (
           <>
-            {activeSection === "today" && (
+            {isTodayShow && (
               <CurrentWeather
-                favCities={favCities}
                 data={weatherData}
                 temperatureUnit={temperatureUnitCelsius}
-                toggleFavCity={toggleFavCity}
                 isDay={isDay}
                 key={nanoid()}
               />
             )}
 
-            <Today5DaysButtons key={nanoid()} />
-            {activeSection === "today" && <TodayInfo data={weatherData} />}
-            {activeSection === "5days" && (
-              <FiveDaysWeather data={weatherData} />
+            <ChangeDisplayedContentButtons
+              fiveDaysActive={fiveDaysActive}
+              todayActive={todayActive}
+              handleClickFiveDays={handleClickFiveDays}
+              handleClickToday={handleClickToday}
+              key={nanoid()}
+            />
+            {isTodayShow ? (
+              <TodayInfo data={weatherData} />
+            ) : (
+              <>
+                <FiveDaysWeather data={weatherData} />
+                <Charts data={weatherData} />
+              </>
             )}
           </>
         )}
 
-        {activeSection === "today" && <Quote />}
+        {isTodayShow && <Quote />}
       </AppWrapper>
-     </AnimatePresence>
+    </AnimatePresence>
   );
 }
 
@@ -188,3 +200,19 @@ const AppWrapper = styled(motion.div)<AppWrapperProps>`
 `;
 
 export default App;
+// const [favoritesCities, setFavorites, remove] = useLocalStorage<string[]>(
+//   "favoritesCities",
+//   []
+// );
+// const toggleCityInFavorites = (city: string) => {
+//   if (favoritesCities) {
+//     favoritesCities?.includes(city);
+//     const cityIndex = favoritesCities?.indexOf(city);
+
+//     const isCityInFavCities = cityIndex !== -1;
+//     const updatedCities = isCityInFavCities
+//       ? favoritesCities?.filter((e, i) => i !== cityIndex)
+//       : [...favoritesCities, city];
+//     setFavorites(updatedCities);
+//   }
+// };

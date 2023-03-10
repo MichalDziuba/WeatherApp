@@ -1,18 +1,43 @@
 import { nanoid } from "nanoid";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { getLocalStorageData } from "../../helpers/useLocalStorage";
 import { LordIcon } from "../lordIcon/lordIcon";
+import { useLocalStorage } from "react-use";
+import { setFavCities } from "../../store/favCitiesReducer";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { translateCityName } from "../../api/geonamesApi";
+
 type FavButtonProps = {
-  fn: () => void;
-  favCities: string[] | null;
   cityName: string;
 };
 
-const AddToFavButton = ({ fn, favCities, cityName }: FavButtonProps) => {
-;
+const AddToFavButton = ({ cityName }: FavButtonProps) => {
+  const [_, setFavoritesCitiesLocalStorage] = useLocalStorage<string[]>(
+    "favoritesCities",
+    []
+  );
+  const favoritesCities = useAppSelector(
+    (state) => state.favoritesCities.cities
+  );
+  const dispatch = useAppDispatch();
+  const toggleCityInFavorites = (city: string) => {
+    if (favoritesCities) {
+      favoritesCities?.includes(city);
+      const cityIndex = favoritesCities?.indexOf(city);
+
+      const isCityInFavCities = cityIndex !== -1;
+      const updatedCities = isCityInFavCities
+        ? favoritesCities?.filter((e, i) => i !== cityIndex)
+        : [...favoritesCities, city];
+      setFavoritesCitiesLocalStorage(updatedCities);
+      dispatch(setFavCities(updatedCities));
+    }
+  };
+
   return (
-    <FavButton onClick={fn} key={nanoid()}>
-      {favCities?.includes(cityName) ? (
+    <FavButton onClick={() => toggleCityInFavorites(cityName)} key={nanoid()}>
+      {favoritesCities?.includes(cityName) ? (
         <LordIcon
           src="https://cdn.lordicon.com/pbglwcrp.json"
           trigger="hover"

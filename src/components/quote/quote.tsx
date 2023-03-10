@@ -23,10 +23,10 @@ const QuoteWrapper = styled(ContentWrapper)`
 `;
 const Text = styled.p`
   font-style: italic;
-  /* font-weight: 400; */
+  font-size: var(--fontMedium);
 `;
 const Author = styled.p`
-  font-size: var(--fontMedium);
+  font-size: var(--fontLarge);
   font-style: oblique;
 `;
 export default Quote;

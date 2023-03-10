@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { DecorLine } from "../todayInfo/todayInfo";
 import WeatherIcon from "../weatherIcon/weatherIcon";
+
 type WeatherItemProps = {
   dayOfWeek: string;
   dateDay: string;
@@ -8,6 +10,9 @@ type WeatherItemProps = {
   weatherCode: number;
   tempMin: number;
   tempMax: number;
+  activeSectionIndex?: number;
+  index: number;
+  moreInfoHandler: () => void;
 };
 const WeatherItem = ({
   dayOfWeek,
@@ -16,7 +21,16 @@ const WeatherItem = ({
   weatherCode,
   tempMin,
   tempMax,
+  activeSectionIndex,
+  index,
+  moreInfoHandler,
 }: WeatherItemProps) => {
+  const [btnActive, setBtnActive] = useState(false);
+
+  useEffect(() => {
+    activeSectionIndex === index ? setBtnActive(true) : setBtnActive(false);
+  }, [activeSectionIndex, index]);
+
   return (
     <ItemWrapper>
       <DayOfWeek>{dayOfWeek}</DayOfWeek>
@@ -35,7 +49,9 @@ const WeatherItem = ({
           <TempValue>{tempMax}</TempValue>
         </MinMaxContent>
       </MinMaxWrapper>
-      <MoreButton>more info</MoreButton>
+      <MoreButton onClick={moreInfoHandler} active={btnActive}>
+        more info
+      </MoreButton>
     </ItemWrapper>
   );
 };
@@ -48,14 +64,15 @@ const ItemWrapper = styled.div`
   align-items: center;
   justify-content: space-around;
   text-align: center;
+  font-weight: 500;
 `;
 const DayOfWeek = styled.p`
   color: var(--colorTertiary);
-  font-size: var(--fontSmall);
+  font-size: var(--fontMedium);
 `;
 const Date = styled.p`
   color: var(--colorPrimary);
-  font-size: calc(var(--fontSmall));
+  font-size: calc(var(--fontLarge));
 `;
 const MinMaxWrapper = styled.div`
   display: flex;
@@ -73,14 +90,21 @@ const TempType = styled.p`
   color: var(--colorTertiary);
 `;
 const TempValue = styled.p`
-  font-size: var(--fontSmall);
+  font-size: var(--fontMedium);
   color: var(--colorQuaternary);
 `;
-const MoreButton = styled.button`
-  font-size: var(--fontSmall);
-  color: var(--colorTertiary);
+type MoreButtonProps = {
+  active: boolean;
+};
+const MoreButton = styled.button<MoreButtonProps>`
+  font-size: ${(props) =>
+    props.active ? `var(--fontMedium)` : `var(--fontSmall);`};
+  color: ${(props) =>
+    props.active ? `var(--colorPrimary)` : `var(--colorTertiary)`};
   text-decoration: underline;
+  font-weight: ${(props) => props.active && "600"};
   text-underline-offset: 2px;
+  margin-top: 1rem;
 `;
 
 export default WeatherItem;

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { weatherDataInterface } from "../../api/api";
+import { weatherDataInterface } from "../../api/weatherApi";
 import { convertTo24Hour, getDateVariables } from "../../helpers/date";
 import Clock from "../clock/clock";
 import iconSunset from "../../assets/icons/animated/sunset.svg";
@@ -85,10 +85,10 @@ const WrapperContentSmall = styled.div`
   align-items: center;
   display: flex;
   height: fit-content;
-  font-size: var(--fontMedium);
+  font-size: var(--fontLarge);
 `;
 const WrapperContentDate = styled(WrapperContentSmall)`
-  font-size: var(--fontLarge);
+  font-size: var(--fontExtraLarge);
   min-width: fit-content;
 `;
 const WrapperContentSun = styled(WrapperContentSmall)`

@@ -4,6 +4,7 @@ import styled from "styled-components";
 type ContentWrapperProps = {
   bottom?: boolean;
   top?: boolean;
+  isChartOpen?: boolean;
 }
 
 export const ContentWrapper = styled.div<ContentWrapperProps>`
