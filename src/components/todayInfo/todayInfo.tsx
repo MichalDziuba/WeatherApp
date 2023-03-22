@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { weatherDataInterface } from "../../api/weatherApi";
+import { dataTodayInfoInterface, weatherDataInterface } from "../../api/weatherApi";
 import { convertTo24Hour, getDateVariables } from "../../helpers/date";
 import Clock from "../clock/clock";
 import iconSunset from "../../assets/icons/animated/sunset.svg";
@@ -8,23 +8,35 @@ import { ContentWrapper } from "../contentWrapper/contentWrapper";
 import { motion } from "framer-motion";
 import { nanoid } from "nanoid";
 type TodayInfoProps = {
-  data: weatherDataInterface;
+  data: dataTodayInfoInterface;
 };
 
 const TodayInfo = ({ data }: TodayInfoProps) => {
-  const timeZone = data.location.tz_id;
-  const date = getDateVariables(data.location.localtime);
-  const sunSet = convertTo24Hour(data.forecast.forecastday[0].astro.sunset);
-  const sunRise = convertTo24Hour(data.forecast.forecastday[0].astro.sunrise);
-
+  // const timeZone = data.location.tz_id;
+  // const date = getDateVariables(data.location.localtime);
+  // const sunSet = convertTo24Hour(data.forecast.forecastday[0].astro.sunset);
+  // const sunRise = convertTo24Hour(data.forecast.forecastday[0].astro.sunrise);
+const date=getDateVariables(data.date)
   return (
-    <ContainerToday>
-      <TodayInfoWrapper
-      initial={{ opacity: 0.1, x: 500 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ x: 1000 }}
-      transition={{ duration: 0.5 }}
+    <ContainerToday
       key={nanoid()}
+      initial={{ x: "-100vw" }}
+      animate={{ x: 0 }}
+      exit={{ x: "-100vw" }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      <TodayInfoWrapper
+        initial={{
+          opacity: 0.1,
+          // x: 500
+        }}
+        animate={{
+          opacity: 1,
+          // x: 0
+        }}
+        exit={{ x: 1000 }}
+        transition={{ duration: 0.5 }}
+        key={nanoid()}
       >
         <WrapperContentFirst>
           <WrapperContentDate>
@@ -39,16 +51,16 @@ const TodayInfo = ({ data }: TodayInfoProps) => {
         <WrapperContent>
           <WrapperContentSmall>{date.month}</WrapperContentSmall> <DecorLine />
           <WrapperContentSmall>
-            <Clock tzId={timeZone} />
+            <Clock tzId={data.timezone} />
           </WrapperContentSmall>
         </WrapperContent>
         <WrapperContent>
           <WrapperContentSun>
-            <Icon src={iconSunrise} /> <p>{sunRise}</p>
+            <Icon src={iconSunrise} /> <p>{data.sunrise}</p>
           </WrapperContentSun>
           <DecorLine />
           <WrapperContentSun>
-            <Icon src={iconSunset} /> <p>{sunSet}</p>
+            <Icon src={iconSunset} /> <p>{data.sunset}</p>
           </WrapperContentSun>
         </WrapperContent>
       </TodayInfoWrapper>

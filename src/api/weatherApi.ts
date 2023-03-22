@@ -1,11 +1,12 @@
 import axios from "axios";
 
-const WEATHERAPIKEY:string = 'a646310093de4b4a8f4190244231501';
+const WEATHERAPIKEY: string = "a646310093de4b4a8f4190244231501";
 
-export const Request = (q: string) => { return axios.get(
-  `https://api.weatherapi.com/v1/forecast.json?key=${WEATHERAPIKEY}&q=${q}&days=10&aqi=no&alerts=no`
-); };
-
+export const Request = (q: string) => {
+  return axios.get(
+    `https://api.weatherapi.com/v1/forecast.json?key=${WEATHERAPIKEY}&q=${q}&days=10&aqi=no&alerts=no`
+  );
+};
 
 interface dataCurrent {
   cloud: number;
@@ -126,4 +127,23 @@ export interface weatherDataInterface {
   current: dataCurrent;
   forecast: forecastData;
   location: location;
+}
+export type dataCurrentInterface = {
+  cityName:  string;
+  countryShortcut:  string;
+  currentTemperature:  number;
+  minTemp:  number;
+  maxTemp:  number;
+  iconCode:  number;
+};
+export type dataTodayInfoInterface = {
+  timezone: string;
+  date: string;
+  sunset: string;
+  sunrise: string;
+}
+export type threeDaysDataInterface = {
+  cityName: string;
+  country: string;
+  forecastData: forecastDay[]
 }

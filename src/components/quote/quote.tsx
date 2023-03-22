@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import styled from "styled-components";
 import { ContentWrapper } from "../contentWrapper/contentWrapper";
 const Quote = () => {
@@ -5,7 +6,13 @@ const Quote = () => {
     "Who cares about the clouds when we're together? Just sing a song and bring the sunny weather.";
   const author = "Dale Evans";
   return (
-    <QuoteWrapper>
+    <QuoteWrapper
+      key={nanoid()}
+      initial={{ x: "-100vw" }}
+      animate={{ x: 0 }}
+      exit={{ x: "-100vw" }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
       <Text>{text}</Text>
       <Author>{author}</Author>
     </QuoteWrapper>

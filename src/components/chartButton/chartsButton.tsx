@@ -33,4 +33,5 @@ const Button = styled.button`
   text-decoration: underline;
   text-underline-offset: 2px;
   color: var(--colorQuaternary);
+  margin-top: 1rem;
 `;

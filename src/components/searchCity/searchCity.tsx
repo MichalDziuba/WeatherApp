@@ -42,8 +42,8 @@ const SearchCityInput = ({
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    const cityName = await translateCityName(inputValue);
-    setSearchInputValue(cityName);
+    // const cityName = await translateCityName(inputValue);
+    setSearchInputValue(inputValue);
   };
 
   useEffect(() => {

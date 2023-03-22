@@ -1,4 +1,5 @@
 
+import { motion } from "framer-motion";
 import styled from "styled-components";
 
 type ContentWrapperProps = {
@@ -7,7 +8,7 @@ type ContentWrapperProps = {
   isChartOpen?: boolean;
 }
 
-export const ContentWrapper = styled.div<ContentWrapperProps>`
+export const ContentWrapper = styled(motion.div)<ContentWrapperProps>`
   width: 85%;
   display: flex;
   align-items: center;

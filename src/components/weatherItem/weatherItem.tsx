@@ -97,12 +97,12 @@ type MoreButtonProps = {
   active: boolean;
 };
 const MoreButton = styled.button<MoreButtonProps>`
-  font-size: ${(props) =>
-    props.active ? `var(--fontMedium)` : `var(--fontSmall);`};
-  color: ${(props) =>
-    props.active ? `var(--colorPrimary)` : `var(--colorTertiary)`};
-  text-decoration: underline;
-  font-weight: ${(props) => props.active && "600"};
+  font-family: "Montserrat", sans-serif;
+  font-size: var(--fontSmall);
+  color: var(--colorTertiary);
+  /* color: #767d85; */
+  text-decoration: ${(props) => props.active && "underline"};
+  font-weight: ${(props) => (props.active ? "600" : "500")};
   text-underline-offset: 2px;
   margin-top: 1rem;
 `;

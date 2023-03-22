@@ -2,20 +2,24 @@ import Searching from "./components/searchCity/searchCity";
 import styled, { keyframes } from "styled-components";
 import CurrentWeather from "./components/currentWeather/currentWeather";
 import ChangeDisplayedContentButtons from "./components/changeDisplayedContentButtons/sectionSelect";
-import { Request, weatherDataInterface } from "./api/weatherApi";
+import {
+  dataCurrentInterface,
+  dataTodayInfoInterface,
+  Request,
+  threeDaysDataInterface,
+  weatherDataInterface,
+} from "./api/weatherApi";
 import { useEffect, useState } from "react";
 import { Notify, Toast } from "./components/toast/toast";
 import TodayInfo from "./components/todayInfo/todayInfo";
 import Quote from "./components/quote/quote";
 import { nanoid } from "nanoid";
 import { AnimatePresence, motion } from "framer-motion";
-import FiveDaysWeather from "./components/threeDaysWeather/threeDaysWeather";
-import { useAppDispatch, useAppSelector } from "./store/hooks";
+import ThreeDaysWeather from "./components/threeDaysWeather/threeDaysWeather";
 import { Charts } from "./components/charts/charts";
-
+import { convertTo24Hour } from "./helpers/date";
 
 function App() {
-  const dispatch = useAppDispatch();
   const geoLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -41,20 +45,26 @@ function App() {
   const [temperatureUnitCelsius, setTemperatureUnitCelsius] =
     useState<boolean>(true);
   const [isDay, setIsDay] = useState<boolean>(true || false);
-  const [isTodayShow, setIsTodayShow] = useState(true);
+
+  // const [isTodayShow, setIsTodayShow] = useState(true);
   const [todayActive, setTodayActive] = useState(true);
   const [fiveDaysActive, setFiveDaysActive] = useState(false);
-  // const [favoritesCities, setFavoritesCities] = useState<string[]>([]);
-
-
-
+  const [dataCurrent, setDataCurrent] = useState<dataCurrentInterface | null>(
+    null
+  );
+  const [todayInfoData, setTodayInfoData] =
+    useState<dataTodayInfoInterface | null>(null);
+  const [threeDaysData, setThreeDaysData] =
+    useState<threeDaysDataInterface | null>(null);
+  const formatTemp = (temp: number) => {
+    return Math.round(temp);
+  };
   const handleClickToday = () => {
     if (todayActive) {
       return;
     } else {
       setTodayActive(!todayActive);
       setFiveDaysActive(!fiveDaysActive);
-      setIsTodayShow(true);
     }
   };
   const handleClickFiveDays = () => {
@@ -63,7 +73,6 @@ function App() {
     } else {
       setFiveDaysActive(!fiveDaysActive);
       setTodayActive(!todayActive);
-      setIsTodayShow(false);
     }
   };
 
@@ -72,6 +81,41 @@ function App() {
     const data: weatherDataInterface = await response.data;
     setWeatherData(data);
     setIsDay(data.current.is_day === 1 ? true : false);
+    setDataCurrent({
+      cityName: data.location.name,
+      countryShortcut: data.location.country,
+      currentTemperature: formatTemp(
+        temperatureUnitCelsius ? data.current.temp_c : data.current.temp_f
+      ),
+      minTemp: formatTemp(
+        temperatureUnitCelsius
+          ? data.forecast.forecastday[0].day.mintemp_c
+          : data.forecast.forecastday[0].day.mintemp_f
+      ),
+      maxTemp: formatTemp(
+        temperatureUnitCelsius
+          ? data.forecast.forecastday[0].day.maxtemp_c
+          : data.forecast.forecastday[0].day.maxtemp_f
+      ),
+      iconCode: data.current.condition.code,
+    });
+    setTodayInfoData({
+      timezone: data.location.tz_id,
+      date: data.location.localtime,
+      sunrise: convertTo24Hour(data.forecast.forecastday[0].astro.sunrise),
+      sunset: convertTo24Hour(data.forecast.forecastday[0].astro.sunset),
+    });
+    setTodayInfoData({
+      date: data.location.localtime,
+      timezone: data.location.tz_id,
+      sunrise: convertTo24Hour(data.forecast.forecastday[0].astro.sunrise),
+      sunset: convertTo24Hour(data.forecast.forecastday[0].astro.sunset),
+    });
+    setThreeDaysData({
+      cityName: data.location.name,
+      country: data.location.country,
+      forecastData: data.forecast.forecastday,
+    });
   };
 
   const getLocation = async () => {
@@ -95,15 +139,9 @@ function App() {
   }, [geoError]);
 
   return (
-    <AnimatePresence>
-      {/* <Toast key={nanoid()} /> */}
-      <AppWrapper
-        isDay={isDay}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ delay: 0.5 }}
-      >
+   
+ 
+      <AppWrapper isDay={isDay}>
         <Searching
           setSearchInputValue={setSearchValue}
           geoFunction={getLocation}
@@ -111,37 +149,60 @@ function App() {
         />
 
         {weatherData && (
-          <>
-            {isTodayShow && (
-              <CurrentWeather
-                data={weatherData}
-                temperatureUnit={temperatureUnitCelsius}
-                isDay={isDay}
-                key={nanoid()}
-              />
-            )}
+         
+            <AnimatePresence mode="wait">
+              {todayActive ? (
+                <AnimatedWrapper
+                  
+                  key={"today"}
+                  initial={{ x: "-100vw" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "-100vw" }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <CurrentWeather
+                    data={dataCurrent}
+                    temperatureUnit={temperatureUnitCelsius}
+                    isDay={isDay}
+                    key={nanoid()}
+                  />
 
-            <ChangeDisplayedContentButtons
-              fiveDaysActive={fiveDaysActive}
-              todayActive={todayActive}
-              handleClickFiveDays={handleClickFiveDays}
-              handleClickToday={handleClickToday}
-              key={nanoid()}
-            />
-            {isTodayShow ? (
-              <TodayInfo data={weatherData} />
-            ) : (
-              <>
-                <FiveDaysWeather data={weatherData} />
-                <Charts data={weatherData} />
-              </>
-            )}
-          </>
+                  <ChangeDisplayedContentButtons
+                    fiveDaysActive={fiveDaysActive}
+                    todayActive={todayActive}
+                    handleClickFiveDays={handleClickFiveDays}
+                    handleClickToday={handleClickToday}
+                    key={nanoid()}
+                  />
+                  <TodayInfo data={todayInfoData!} />
+
+                  <Quote />
+                </AnimatedWrapper>
+              ) : (
+              <AnimatedWrapper
+                  key="other"
+                  initial={{ x: "100vw" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "100vw" }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <ChangeDisplayedContentButtons
+                    fiveDaysActive={fiveDaysActive}
+                    todayActive={todayActive}
+                    handleClickFiveDays={handleClickFiveDays}
+                    handleClickToday={handleClickToday}
+                    key={nanoid()}
+                  />
+                  <ThreeDaysWeather data={threeDaysData} />
+
+                  <Charts data={threeDaysData} />
+                </AnimatedWrapper>
+              )}
+            </AnimatePresence>
+        
         )}
-
-        {isTodayShow && <Quote />}
       </AppWrapper>
-    </AnimatePresence>
+  
   );
 }
 
@@ -198,21 +259,60 @@ const AppWrapper = styled(motion.div)<AppWrapperProps>`
     1s ease-in-out;
   overflow: hidden;
 `;
-
+const AnimatedWrapper=styled(motion.div)`
+  height: 85vh;
+  max-height: fit-content;
+  width: 100%;
+  align-items: center;
+  justify-content: space-evenly;
+  display: flex;
+  flex-direction: column;
+`
 export default App;
-// const [favoritesCities, setFavorites, remove] = useLocalStorage<string[]>(
-//   "favoritesCities",
-//   []
-// );
-// const toggleCityInFavorites = (city: string) => {
-//   if (favoritesCities) {
-//     favoritesCities?.includes(city);
-//     const cityIndex = favoritesCities?.indexOf(city);
 
-//     const isCityInFavCities = cityIndex !== -1;
-//     const updatedCities = isCityInFavCities
-//       ? favoritesCities?.filter((e, i) => i !== cityIndex)
-//       : [...favoritesCities, city];
-//     setFavorites(updatedCities);
-//   }
-// };
+     {
+       /* <Toast key={nanoid()} /> */
+     }
+     {
+       /* <AppWrapper
+        isDay={isDay}
+     
+      >
+        <Searching
+          setSearchInputValue={setSearchValue}
+          geoFunction={getLocation}
+          searchValue={searchValue}
+        />
+
+        {weatherData && (
+          <>
+            {todayActive && (
+              <CurrentWeather
+                data={dataCurrent}
+                temperatureUnit={temperatureUnitCelsius}
+                isDay={isDay}
+                key={nanoid()}
+              />
+            )}
+
+            <ChangeDisplayedContentButtons
+              fiveDaysActive={fiveDaysActive}
+              todayActive={todayActive}
+              handleClickFiveDays={handleClickFiveDays}
+              handleClickToday={handleClickToday}
+              key={nanoid()}
+            />
+            {todayActive&&todayInfoData ? (
+              <TodayInfo data={todayInfoData} />
+            ) : (
+              <>
+                <ThreeDaysWeather data={threeDaysData} />
+                <Charts data={threeDaysData} />
+              </>
+            )}
+          </>
+        )}
+
+        {todayActive && <Quote />}
+      </AppWrapper> */
+     }

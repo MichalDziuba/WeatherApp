@@ -18,9 +18,25 @@ const ChangeDisplayedContentButtons = ({
   fiveDaysActive,
 }: ChangeDisplayedContentButtonsProps) => {
   return (
-    <ButtonsWrapper>
-      <Button active={todayActive} fn={handleClickToday} text="today" key={nanoid()}/>
-      <Button active={fiveDaysActive} fn={handleClickFiveDays} text="5 days" key={nanoid()} />
+    <ButtonsWrapper
+      key={nanoid()}
+      initial={{ x: "-100vw" }}
+      animate={{ x: 0 }}
+      exit={{ x: "-100vw" }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      <Button
+        active={todayActive}
+        fn={handleClickToday}
+        text="today"
+        key={nanoid()}
+      />
+      <Button
+        active={fiveDaysActive}
+        fn={handleClickFiveDays}
+        text="3 days"
+        key={nanoid()}
+      />
     </ButtonsWrapper>
   );
 };
